@@ -71,3 +71,19 @@ func SingleWorkspace(c *gin.Context) {
 		"projects":  projects,
 	})
 }
+
+func DeleteWorkspace(c *gin.Context) {
+	db := databaseHandler.OpenDbConnectionLocal()
+	workspace_id := c.Query("workspace_id")
+	query := "DELETE FROM workspaces WHERE w_id = $1"
+	_, err := db.Query(query, workspace_id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"response": "",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"response": "success",
+	})
+}

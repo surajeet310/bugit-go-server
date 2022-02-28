@@ -15,6 +15,7 @@ func main() {
 	urlRouter.GET("/home", workspaces.ListOfWorkspaces)
 	urlRouter.GET("/home/workspace", workspaces.SingleWorkspace)
 	urlRouter.POST("/addWorkspace", workspaces.AddWorkspace)
+	urlRouter.DELETE("/deleteWorkspace", workspaces.DeleteWorkspace)
 	err := urlRouter.Run()
 	if err != nil {
 		return
