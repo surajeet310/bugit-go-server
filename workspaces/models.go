@@ -1,7 +1,7 @@
 package workspaces
 
 import (
-	"github.com/google/uuid"
+	"github.com/pborman/uuid"
 )
 
 type Workspace struct {
@@ -11,7 +11,6 @@ type Workspace struct {
 	ProjectCount int       `json:"project_count"`
 	MemberCount  int       `json:"member_count"`
 	CreatedAt    string    `json:"created_at"`
-	IsActive     bool      `json:"is_active"`
 }
 
 type HomeWorkspaces struct {
@@ -25,4 +24,14 @@ type WorkspaceMembers struct {
 	W_id    uuid.UUID `json:"w_id"`
 	UserId  uuid.UUID `json:"user_id"`
 	IsAdmin bool      `json:"is_admin"`
+}
+
+type AddWorkspaceStruct struct {
+	W_id         uuid.UUID `json:"w_id"`
+	UserId       uuid.UUID `json:"user_id"`
+	Name         string    `json:"name"`
+	Descp        string    `json:"descp"`
+	ProjectCount int       `json:"project_count"`
+	MemberCount  int       `json:"member_count"`
+	CreatedAt    string    `json:"created_at"`
 }

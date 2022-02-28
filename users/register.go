@@ -47,6 +47,10 @@ func RegisterUser(c *gin.Context) {
 		_, err := db.Query(query, user.User_id, user.Fname, user.Lname, user.Email, user.Password, user.Alert)
 		if err != nil {
 			log.Printf("DB insert operation error : %s", err)
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"response": "",
+			})
+			return
 		}
 		c.JSON(http.StatusCreated, gin.H{
 			"response": user,
