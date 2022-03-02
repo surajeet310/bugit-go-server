@@ -87,3 +87,89 @@ func DeleteWorkspace(c *gin.Context) {
 		"response": "success",
 	})
 }
+
+func RemoveWorkspaceMember(c *gin.Context) {
+	var w_id uuid.UUID
+	user_id := c.Query("user_id")
+	db := databaseHandler.OpenDbConnectionLocal()
+	query := "SELECT w_id FROM workspace_members WHERE user_id = $1"
+	widList, err := db.Query(query, user_id)
+	if err != nil {
+		handleServerError(c)
+		return
+	}
+	for widList.Next() {
+		widList.Scan(&w_id)
+		err = changeMemberCount(c, db, "sub", w_id)
+		if err != nil {
+			handleServerError(c)
+			return
+		}
+	}
+	query = "DELETE FROM workspace_members WHERE user_id = $1"
+	_, err = db.Query(query, user_id)
+	if err != nil {
+		handleServerError(c)
+		return
+	}
+	query = "DELETE FROM project_members WHERE user_id = $1"
+	_, err = db.Query(query, user_id)
+	if err != nil {
+		handleServerError(c)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"response": "success",
+	})
+}
+
+func GetRequests(c *gin.Context) {
+	var request Request
+	var requests []Request
+	user_id := c.Query("user_id")
+	query := "SELECT * FROM requests WHERE user_id = $1"
+	db := databaseHandler.OpenDbConnectionLocal()
+	reqs, err := db.Query(query, user_id)
+	if err != nil {
+		handleError(c)
+		return
+	}
+	for reqs.Next() {
+		reqs.Scan(&request)
+		requests = append(requests, request)
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"response": requests,
+	})
+}
+
+func GetWorkspaceMembers(c *gin.Context) {
+	var fname, lname string
+	var user_id uuid.UUID
+	var is_admin bool
+	var workspaceMember GetWorkspaceMemberStruct
+	var workspaceMembers []GetWorkspaceMemberStruct
+	w_id := c.Query("workspace_id")
+	db := databaseHandler.OpenDbConnectionLocal()
+	query := "SELECT user_id,is_admin FROM workspace_members WHERE w_id = $1"
+	members, err := db.Query(query, w_id)
+	if err != nil {
+		handleServerError(c)
+		return
+	}
+	for members.Next() {
+		members.Scan(&user_id, &is_admin)
+		err = db.QueryRow("SELECT fname,lname FROM users WHERE user_id = $1", user_id).Scan(&fname, &lname)
+		if err != nil {
+			handleError(c)
+			return
+		}
+		workspaceMember.UserId = user_id
+		workspaceMember.IsAdmin = is_admin
+		workspaceMember.UserName = fname + " " + lname
+		workspaceMembers = append(workspaceMembers, workspaceMember)
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"response": workspaceMembers,
+	})
+}

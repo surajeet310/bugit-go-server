@@ -14,7 +14,13 @@ func main() {
 	urlRouter.POST("/login", users.LoginUser)
 	urlRouter.GET("/home", workspaces.ListOfWorkspaces)
 	urlRouter.GET("/home/workspace", workspaces.SingleWorkspace)
+	urlRouter.GET("/workspaceMembers", workspaces.GetWorkspaceMembers)
+	urlRouter.GET("/requests", workspaces.GetRequests)
 	urlRouter.POST("/addWorkspace", workspaces.AddWorkspace)
+	urlRouter.POST("/makeUserAdmin", workspaces.MakeWorkspaceMemberAdmin)
+	urlRouter.POST("/addWorkspaceMemberReq", workspaces.AddWorkspaceMemberRequest)
+	urlRouter.POST("/addWorkspaceMember", workspaces.AddWorkspaceMember)
+	urlRouter.DELETE("/removeWorkspaceMember", workspaces.RemoveWorkspaceMember)
 	urlRouter.DELETE("/deleteWorkspace", workspaces.DeleteWorkspace)
 	err := urlRouter.Run()
 	if err != nil {
