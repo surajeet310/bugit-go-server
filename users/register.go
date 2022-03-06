@@ -44,6 +44,7 @@ func RegisterUser(c *gin.Context) {
 		query := "INSERT INTO users (user_id,fname,lname,email,pwd,alert) VALUES ($1,$2,$3,$4,$5,$6)"
 		user.User_id = generateUUID()
 		user.Password = getHashedPwd(user.Password)
+		user.Alert = 0
 		_, err := db.Query(query, user.User_id, user.Fname, user.Lname, user.Email, user.Password, user.Alert)
 		if err != nil {
 			log.Printf("DB insert operation error : %s", err)
@@ -53,7 +54,7 @@ func RegisterUser(c *gin.Context) {
 			return
 		}
 		c.JSON(http.StatusCreated, gin.H{
-			"response": user,
+			"response": "success",
 		})
 	} else {
 		c.JSON(http.StatusBadRequest, gin.H{
