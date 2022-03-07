@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/surajeet310/bugit-go-server/projects"
 	"github.com/surajeet310/bugit-go-server/users"
 	"github.com/surajeet310/bugit-go-server/workspaces"
 
@@ -10,6 +11,7 @@ import (
 
 func main() {
 	urlRouter := gin.New()
+	//users
 	urlRouter.POST("/register", users.RegisterUser)
 	urlRouter.POST("/login", users.LoginUser)
 	urlRouter.GET("/user", users.GetUserFromId)
@@ -17,6 +19,7 @@ func main() {
 	urlRouter.PATCH("/changePwd", users.ChangePwd)
 	urlRouter.PATCH("/changeFname", users.ChangeUserFname)
 	urlRouter.PATCH("/changeLname", users.ChangeUserLname)
+	//workspaces
 	urlRouter.GET("/home", workspaces.ListOfWorkspaces)
 	urlRouter.GET("/home/workspace", workspaces.SingleWorkspace)
 	urlRouter.GET("/workspaceMembers", workspaces.GetWorkspaceMembers)
@@ -27,6 +30,14 @@ func main() {
 	urlRouter.POST("/addWorkspaceMember", workspaces.AddWorkspaceMember)
 	urlRouter.DELETE("/removeWorkspaceMember", workspaces.RemoveWorkspaceMember)
 	urlRouter.DELETE("/deleteWorkspace", workspaces.DeleteWorkspace)
+	//projects
+	urlRouter.POST("/addProject", projects.AddProject)
+	urlRouter.POST("/makeProjectUserAdmin", projects.MakeProjectMemberAdmin)
+	urlRouter.POST("/addProjectMember", projects.AddProjectMember)
+	urlRouter.GET("/project", projects.SingleProjectList)
+	urlRouter.GET("/projectMembers", projects.GetProjectMembers)
+	urlRouter.DELETE("/deleteProject", projects.DeleteProject)
+	urlRouter.DELETE("/removeProjectMember", projects.RemoveProjectMember)
 	err := urlRouter.Run()
 	if err != nil {
 		return
