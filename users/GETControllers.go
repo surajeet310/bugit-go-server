@@ -5,12 +5,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/surajeet310/bugit-go-server/databaseHandler"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func handleRequestError(c *gin.Context) {
 	c.JSON(http.StatusBadRequest, gin.H{
-		"response": "",
+		"response": "error",
+		"result":   nil,
 	})
 }
 
@@ -32,27 +32,7 @@ func GetUserFromId(c *gin.Context) {
 	user.Email = email
 
 	c.JSON(http.StatusOK, gin.H{
-		"response": user,
-	})
-}
-
-func CheckOldPwd(c *gin.Context) {
-	var actualPass string
-	oldPass := c.Query("pwd")
-	user_id := c.Query("user_id")
-	db := databaseHandler.OpenDbConnectionLocal()
-	err := db.QueryRow("SELECT pwd FROM users WHERE user_id = $1", user_id).Scan(&actualPass)
-	if err != nil {
-		handleRequestError(c)
-		return
-	}
-	if err = checkPassword(actualPass, oldPass); err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
-		c.JSON(http.StatusNotFound, gin.H{
-			"response": "",
-		})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{
 		"response": "success",
+		"result":   user,
 	})
 }

@@ -15,7 +15,7 @@ func main() {
 	urlRouter.POST("/register", users.RegisterUser)
 	urlRouter.POST("/login", users.LoginUser)
 	urlRouter.GET("/user", users.GetUserFromId)
-	urlRouter.GET("/checkPwd", users.CheckOldPwd)
+	urlRouter.POST("/checkPwd", users.CheckOldPwd)
 	urlRouter.PATCH("/changePwd", users.ChangePwd)
 	urlRouter.PATCH("/changeFname", users.ChangeUserFname)
 	urlRouter.PATCH("/changeLname", users.ChangeUserLname)

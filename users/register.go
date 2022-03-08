@@ -2,7 +2,6 @@ package users
 
 import (
 	"database/sql"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -33,9 +32,7 @@ func isUser(email string, db *sql.DB) bool {
 func RegisterUser(c *gin.Context) {
 	var user User
 	if err := c.ShouldBindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"response": "",
-		})
+		handleRequestError(c)
 		return
 	}
 	db := databaseHandler.OpenDbConnectionLocal()
@@ -47,18 +44,15 @@ func RegisterUser(c *gin.Context) {
 		user.Alert = 0
 		_, err := db.Query(query, user.User_id, user.Fname, user.Lname, user.Email, user.Password, user.Alert)
 		if err != nil {
-			log.Printf("DB insert operation error : %s", err)
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"response": "",
-			})
+			handleRequestError(c)
 			return
 		}
 		c.JSON(http.StatusCreated, gin.H{
 			"response": "success",
+			"result":   nil,
 		})
 	} else {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"response": "",
-		})
+		handleRequestError(c)
+		return
 	}
 }

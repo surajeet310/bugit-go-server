@@ -1,7 +1,6 @@
 package users
 
 import (
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -22,7 +21,6 @@ func checkPassword(actualPass, givenPass string) error {
 func getToken(uid uuid.UUID) (string, error) {
 	err := godotenv.Load("../local.env")
 	if err != nil {
-		log.Println(err)
 		return "", err
 	}
 	token_lifespan, err := strconv.Atoi(os.Getenv("TOKEN_HOUR_LIFESPAN"))
@@ -43,10 +41,7 @@ func LoginUser(c *gin.Context) {
 	var pass string
 	var uid uuid.UUID
 	if err := c.ShouldBindJSON(&loginUser); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"response": "",
-		})
-		log.Print(err)
+		handleRequestError(c)
 		return
 	}
 
@@ -54,28 +49,23 @@ func LoginUser(c *gin.Context) {
 	query := "SELECT pwd,user_id FROM users WHERE email = $1"
 	err := db.QueryRow(query, loginUser.Email).Scan(&pass, &uid)
 	if err != nil {
-		log.Println(err)
 		c.JSON(http.StatusNotFound, gin.H{
-			"response": "",
+			"response": "Doesn't exist",
+			"result":   nil,
 		})
 		return
 	}
 	if passVerify := checkPassword(pass, loginUser.Password); passVerify != nil && passVerify == bcrypt.ErrMismatchedHashAndPassword {
-		log.Println(err)
-		c.JSON(http.StatusNotFound, gin.H{
-			"response": "",
-		})
+		handleRequestError(c)
 		return
 	}
 	token, err := getToken(uid)
 	if err != nil {
-		log.Println(err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"response": "",
-		})
+		handleRequestError(c)
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"response": token,
+		"response": "success",
+		"result":   token,
 	})
 }
