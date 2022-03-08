@@ -2,7 +2,6 @@ package workspaces
 
 import (
 	"database/sql"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -14,9 +13,10 @@ func generateUUID() uuid.UUID {
 	return uuid.NewRandom()
 }
 
-func handleServerError(c *gin.Context) {
-	c.JSON(http.StatusInternalServerError, gin.H{
-		"response": "",
+func handleError(c *gin.Context, err string) {
+	c.JSON(http.StatusBadRequest, gin.H{
+		"response": err,
+		"result":   nil,
 	})
 }
 
@@ -24,9 +24,7 @@ func AddWorkspace(c *gin.Context) {
 	var workspace AddWorkspaceStruct
 	var workspaceMember WorkspaceMembers
 	if err := c.ShouldBindJSON(&workspace); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"response": "",
-		})
+		handleError(c, "error")
 		return
 	}
 	db := databaseHandler.OpenDbConnectionLocal()
@@ -36,7 +34,7 @@ func AddWorkspace(c *gin.Context) {
 	workspace.ProjectCount = 0
 	_, err := db.Query(query, workspace.W_id, workspace.Name, workspace.Descp, workspace.ProjectCount, workspace.MemberCount, workspace.CreatedAt)
 	if err != nil {
-		handleServerError(c)
+		handleError(c, "error")
 		return
 	}
 
@@ -47,20 +45,19 @@ func AddWorkspace(c *gin.Context) {
 	query = "INSERT INTO workspace_members (w_id,user_id,is_admin) VALUES ($1,$2,$3)"
 	_, err = db.Query(query, workspaceMember.W_id, workspaceMember.UserId, workspaceMember.IsAdmin)
 	if err != nil {
-		handleServerError(c)
+		handleError(c, "error")
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"response": "success",
+		"result":   nil,
 	})
 }
 
 func MakeWorkspaceMemberAdmin(c *gin.Context) {
 	var workspaceMember WorkspaceMembers
 	if err := c.ShouldBindJSON(&workspaceMember); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"response": "",
-		})
+		handleError(c, "error")
 		return
 	}
 	db := databaseHandler.OpenDbConnectionLocal()
@@ -68,20 +65,20 @@ func MakeWorkspaceMemberAdmin(c *gin.Context) {
 	query := "UPDATE workspace_members SET is_admin = $1 WHERE user_id = $2 AND w_id = $3"
 	_, err := db.Query(query, workspaceMember.IsAdmin, workspaceMember.UserId, workspaceMember.W_id)
 	if err != nil {
-		handleServerError(c)
+		handleError(c, "error")
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"response": "success",
+		"result":   nil,
 	})
 }
 
-func changeAlertColumn(c *gin.Context, db *sql.DB, option string, user_id uuid.UUID) error {
+func changeAlertColumn(db *sql.DB, option string, user_id uuid.UUID) error {
 	var alert int
 	query := "SELECT alert FROM users WHERE user_id = $1"
 	err := db.QueryRow(query, user_id).Scan(&alert)
 	if err != nil {
-		handleServerError(c)
 		return err
 	}
 	query = "UPDATE users SET alert = $1 WHERE user_id = $2"
@@ -94,7 +91,7 @@ func changeAlertColumn(c *gin.Context, db *sql.DB, option string, user_id uuid.U
 	return err
 }
 
-func changeMemberCount(c *gin.Context, db *sql.DB, option string, w_id uuid.UUID) error {
+func changeMemberCount(db *sql.DB, option string, w_id uuid.UUID) error {
 	var memberCount int
 	query := "SELECT member_count FROM workspaces WHERE w_id = $1"
 	err := db.QueryRow(query, w_id).Scan(&memberCount)
@@ -126,28 +123,26 @@ func AddWorkspaceMemberRequest(c *gin.Context) {
 	var user_id uuid.UUID
 	var fname, lname string
 	if err := c.ShouldBindJSON(&workspaceMemberReq); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"response": "",
-		})
+		handleError(c, "error")
 		return
 	}
 	db := databaseHandler.OpenDbConnectionLocal()
 	query := "SELECT user_id FROM users WHERE email = $1"
 	err := db.QueryRow(query, workspaceMemberReq.Email).Scan(&user_id)
 	if err != nil {
-		handleServerError(c)
+		handleError(c, "error")
 		return
 	}
 	count, err := checkExistingMember(c, db, workspaceMemberReq.W_id, user_id)
 	if err != nil {
-		handleServerError(c)
+		handleError(c, "error")
 		return
 	}
 
 	if count == 0 {
 		err = db.QueryRow("SELECT fname,lname FROM users WHERE user_id = $1", workspaceMemberReq.RequesteeId).Scan(&fname, &lname)
 		if err != nil {
-			handleServerError(c)
+			handleError(c, "error")
 			return
 		}
 		fullName := fname + " " + lname
@@ -155,39 +150,35 @@ func AddWorkspaceMemberRequest(c *gin.Context) {
 		req_id := generateUUID()
 		_, err = db.Query(query, req_id, workspaceMemberReq.W_id, user_id, fullName)
 		if err != nil {
-			handleServerError(c)
+			handleError(c, "error")
 			return
 		}
-		err = changeAlertColumn(c, db, "add", user_id)
+		err = changeAlertColumn(db, "add", user_id)
 		if err != nil {
-			handleServerError(c)
+			handleError(c, "error")
 			return
 		}
 		c.JSON(http.StatusOK, gin.H{
 			"response": "success",
+			"result":   nil,
 		})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"response": "exists",
-	})
+	handleError(c, "exists")
 }
 
 func AddWorkspaceMember(c *gin.Context) {
 	var workspaceMember WorkspaceMembers
 	var w_id, user_id uuid.UUID
-	var req_id RequestAddMember
+	var req_id RequestIdStruct
 	if err := c.ShouldBindJSON(&req_id); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"response": "",
-		})
+		handleError(c, "error")
 		return
 	}
 	db := databaseHandler.OpenDbConnectionLocal()
-	err := db.QueryRow("SELECT user_id,w_id FROM requests WHERE req_id = $1", req_id.RequesteeId).Scan(&user_id, &w_id)
+	err := db.QueryRow("SELECT user_id,w_id FROM requests WHERE req_id = $1", req_id.RequestId).Scan(&user_id, &w_id)
 	if err != nil {
-		log.Println(err)
-		handleServerError(c)
+		handleError(c, "error")
 		return
 	}
 	workspaceMember.IsAdmin = false
@@ -196,30 +187,27 @@ func AddWorkspaceMember(c *gin.Context) {
 	query := "INSERT INTO workspace_members (w_id,user_id,is_admin) VALUES ($1,$2,$3)"
 	_, err = db.Query(query, workspaceMember.W_id, workspaceMember.UserId, workspaceMember.IsAdmin)
 	if err != nil {
-		log.Println(err)
-		handleServerError(c)
+		handleError(c, "error")
 		return
 	}
 	query = "DELETE FROM requests WHERE req_id = $1"
-	_, err = db.Query(query, req_id.RequesteeId)
+	_, err = db.Query(query, req_id.RequestId)
 	if err != nil {
-		log.Println(err)
-		handleServerError(c)
+		handleError(c, "error")
 		return
 	}
-	err = changeAlertColumn(c, db, "sub", workspaceMember.UserId)
+	err = changeAlertColumn(db, "sub", workspaceMember.UserId)
 	if err != nil {
-		log.Println(err)
-		handleServerError(c)
+		handleError(c, "error")
 		return
 	}
-	err = changeMemberCount(c, db, "add", workspaceMember.W_id)
+	err = changeMemberCount(db, "add", workspaceMember.W_id)
 	if err != nil {
-		log.Println(err)
-		handleServerError(c)
+		handleError(c, "error")
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"response": "success",
+		"result":   nil,
 	})
 }

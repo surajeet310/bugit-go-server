@@ -37,7 +37,7 @@ func changeProjectCount(db *sql.DB, w_id uuid.UUID, option string) error {
 	return err
 }
 
-func changeProjectMemberCount(db *sql.DB, p_id uuid.UUID, option string) error {
+func ChangeProjectMemberCount(db *sql.DB, p_id uuid.UUID, option string) error {
 	var memberCount = 0
 	query := "SELECT member_count FROM projects WHERE p_id = $1"
 	err := db.QueryRow(query, p_id).Scan(&memberCount)
@@ -122,7 +122,7 @@ func AddProjectMember(c *gin.Context) {
 		handleBadReqError(c)
 		return
 	}
-	err = changeProjectMemberCount(db, projectMember.P_id, "add")
+	err = ChangeProjectMemberCount(db, projectMember.P_id, "add")
 	if err != nil {
 		handleBadReqError(c)
 		return

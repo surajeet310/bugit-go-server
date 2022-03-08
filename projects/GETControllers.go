@@ -1,7 +1,6 @@
 package projects
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -72,7 +71,7 @@ func GetProjectMembers(c *gin.Context) {
 		} else {
 			projectMember.IsAssigned = false
 		}
-		projectMember.UserName = fname + lname
+		projectMember.UserName = fname + " " + lname
 		projectMembers = append(projectMembers, projectMember)
 	}
 	c.JSON(http.StatusOK, gin.H{
@@ -82,16 +81,21 @@ func GetProjectMembers(c *gin.Context) {
 }
 
 func DeleteProject(c *gin.Context) {
+	var w_id uuid.UUID
 	p_id := c.Query("project_id")
-	w_id := c.Query("workspace_id")
 	db := databaseHandler.OpenDbConnectionLocal()
-	query := "DELETE FROM projects WHERE p_id = $1"
-	_, err := db.Query(query, p_id)
+	err := db.QueryRow("SELECT w_id FROM projects WHERE p_id = $1", p_id).Scan(&w_id)
 	if err != nil {
 		handleBadReqError(c)
 		return
 	}
-	err = changeProjectCount(db, uuid.Parse(w_id), "sub")
+	query := "DELETE FROM projects WHERE p_id = $1"
+	_, err = db.Query(query, p_id)
+	if err != nil {
+		handleBadReqError(c)
+		return
+	}
+	err = changeProjectCount(db, w_id, "sub")
 	if err != nil {
 		handleBadReqError(c)
 		return
@@ -103,6 +107,7 @@ func DeleteProject(c *gin.Context) {
 }
 
 func RemoveProjectMember(c *gin.Context) {
+	var t_id, assignedTo uuid.UUID
 	user_id := c.Query("user_id")
 	p_id := c.Query("project_id")
 	db := databaseHandler.OpenDbConnectionLocal()
@@ -112,9 +117,25 @@ func RemoveProjectMember(c *gin.Context) {
 		handleBadReqError(c)
 		return
 	}
-	err = changeProjectMemberCount(db, uuid.Parse(p_id), "sub")
+	query = "SELECT t_id FROM tasks WHERE p_id = $1"
+	tasks, err := db.Query(query, p_id)
 	if err != nil {
-		log.Println(p_id)
+		handleBadReqError(c)
+		return
+	}
+	for tasks.Next() {
+		tasks.Scan(&t_id)
+		_ = db.QueryRow("SELECT assignedto FROM tasks WHERE t_id = $1", t_id).Scan(&assignedTo)
+		if assignedTo.String() == user_id {
+			_, err := db.Query("UPDATE tasks SET assignedto = $1 WHERE t_id = $2", nil, t_id)
+			if err != nil {
+				handleBadReqError(c)
+				return
+			}
+		}
+	}
+	err = ChangeProjectMemberCount(db, uuid.Parse(p_id), "sub")
+	if err != nil {
 		handleBadReqError(c)
 		return
 	}

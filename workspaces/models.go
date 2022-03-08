@@ -51,8 +51,12 @@ type Request struct {
 }
 
 type GetWorkspaceMemberStruct struct {
-	W_id     uuid.UUID `json:"w_id"`
 	UserId   uuid.UUID `json:"user_id"`
 	UserName string    `json:"user_name"`
 	IsAdmin  bool      `json:"is_admin"`
+	IsTaken  bool      `json:"is_taken"`
+}
+
+type RequestIdStruct struct {
+	RequestId uuid.UUID `json:"req_id"`
 }
