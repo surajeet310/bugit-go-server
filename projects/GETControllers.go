@@ -80,6 +80,35 @@ func GetProjectMembers(c *gin.Context) {
 	})
 }
 
+func GetAllProjectMembers(c *gin.Context) {
+	var projectMember ProjectMember
+	var projectMembers []ProjectMember
+	var fname, lname string
+	p_id := c.Query("project_id")
+	db := databaseHandler.OpenDbConnectionLocal()
+	query := "SELECT user_id,is_admin FROM project_members WHERE p_id = $1"
+	users, err := db.Query(query, p_id)
+	if err != nil {
+		handleBadReqError(c)
+		return
+	}
+	for users.Next() {
+		users.Scan(&projectMember.User_id, &projectMember.IsAdmin)
+		err = db.QueryRow("SELECT fname,lname FROM users WHERE user_id = $1", projectMember.User_id).Scan(&fname, &lname)
+		if err != nil {
+			handleBadReqError(c)
+			return
+		}
+		projectMember.IsAssigned = false
+		projectMember.UserName = fname + " " + lname
+		projectMembers = append(projectMembers, projectMember)
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"response": "success",
+		"result":   projectMembers,
+	})
+}
+
 func DeleteProject(c *gin.Context) {
 	var w_id uuid.UUID
 	p_id := c.Query("project_id")

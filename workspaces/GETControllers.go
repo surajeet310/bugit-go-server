@@ -184,3 +184,32 @@ func GetWorkspaceMembers(c *gin.Context) {
 		"result":   workspaceMembers,
 	})
 }
+
+func GetAllWorkspaceMembers(c *gin.Context) {
+	var fname, lname string
+	var workspaceMember GetWorkspaceMemberStruct
+	var workspaceMembers []GetWorkspaceMemberStruct
+	w_id := c.Query("workspace_id")
+	db := databaseHandler.OpenDbConnectionLocal()
+	query := "SELECT user_id,is_admin FROM workspace_members WHERE w_id = $1"
+	members, err := db.Query(query, w_id)
+	if err != nil {
+		handleError(c, "error")
+		return
+	}
+	for members.Next() {
+		members.Scan(&workspaceMember.UserId, &workspaceMember.IsAdmin)
+		err = db.QueryRow("SELECT fname,lname FROM users WHERE user_id = $1", workspaceMember.UserId).Scan(&fname, &lname)
+		if err != nil {
+			handleError(c, "error")
+			return
+		}
+		workspaceMember.IsTaken = false
+		workspaceMember.UserName = fname + " " + lname
+		workspaceMembers = append(workspaceMembers, workspaceMember)
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"response": "success",
+		"result":   workspaceMembers,
+	})
+}
