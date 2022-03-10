@@ -20,6 +20,7 @@ func main() {
 	urlRouter.PATCH("/changePwd", users.ChangePwd)
 	urlRouter.PATCH("/changeFname", users.ChangeUserFname)
 	urlRouter.PATCH("/changeLname", users.ChangeUserLname)
+	urlRouter.DELETE("/deleteUser", users.DeleteUser)
 	//workspaces
 	urlRouter.GET("/home", workspaces.ListOfWorkspaces)
 	urlRouter.GET("/home/workspace", workspaces.SingleWorkspace)

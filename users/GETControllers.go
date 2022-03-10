@@ -36,3 +36,18 @@ func GetUserFromId(c *gin.Context) {
 		"result":   user,
 	})
 }
+
+func DeleteUser(c *gin.Context) {
+	user_id := c.Query("user_id")
+	db := databaseHandler.OpenDbConnectionLocal()
+	query := "DELETE FROM users WHERE user_id = $1"
+	_, err := db.Query(query, user_id)
+	if err != nil {
+		handleRequestError(c)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"response": "success",
+		"result":   nil,
+	})
+}
