@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/surajeet310/bugit-go-server/middlewares"
@@ -24,6 +25,7 @@ func getPort() (string, error) {
 }
 
 func main() {
+	gin.SetMode(gin.ReleaseMode)
 	urlRouter := gin.New()
 	publicRouter := urlRouter.Group("/open")
 	{
@@ -69,7 +71,14 @@ func main() {
 		privateRouter.POST("/assignTask", tasks.AssignTask)
 		privateRouter.POST("/addComment", tasks.AddComment)
 		privateRouter.DELETE("/deleteTask", tasks.DeleteTask)
+
 	}
+	urlRouter.NoRoute(func(ctx *gin.Context) {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"response": "404",
+			"result":   nil,
+		})
+	})
 
 	port, err := getPort()
 	if err != nil {
