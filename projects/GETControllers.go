@@ -61,7 +61,7 @@ func GetProjectMembers(c *gin.Context) {
 			handleBadReqError(c)
 			return
 		}
-		err = db.QueryRow("SELECT assignedto FROM tasks WHERE t_id = $1", t_id).Scan(&assignedTo)
+		err = db.QueryRow("SELECT assignedto FROM task_members WHERE t_id = $1", t_id).Scan(&assignedTo)
 		if err != nil {
 			handleBadReqError(c)
 			return
@@ -154,9 +154,9 @@ func RemoveProjectMember(c *gin.Context) {
 	}
 	for tasks.Next() {
 		tasks.Scan(&t_id)
-		_ = db.QueryRow("SELECT assignedto FROM tasks WHERE t_id = $1", t_id).Scan(&assignedTo)
+		_ = db.QueryRow("SELECT assignedto FROM task_members WHERE t_id = $1", t_id).Scan(&assignedTo)
 		if assignedTo.String() == user_id {
-			_, err := db.Query("UPDATE tasks SET assignedto = $1 WHERE t_id = $2", nil, t_id)
+			_, err := db.Query("DELETE FROM task_members WHERE t_id = $1", t_id)
 			if err != nil {
 				handleBadReqError(c)
 				return
