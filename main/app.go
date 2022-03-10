@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/surajeet310/bugit-go-server/projects"
+	"github.com/surajeet310/bugit-go-server/tasks"
 	"github.com/surajeet310/bugit-go-server/users"
 	"github.com/surajeet310/bugit-go-server/workspaces"
 
@@ -40,6 +41,12 @@ func main() {
 	urlRouter.GET("/allProjectMembers", projects.GetAllProjectMembers)
 	urlRouter.DELETE("/deleteProject", projects.DeleteProject)
 	urlRouter.DELETE("/removeProjectMember", projects.RemoveProjectMember)
+	//tasks
+	urlRouter.GET("/task", tasks.GetTask)
+	urlRouter.POST("/addTask", tasks.AddTask)
+	urlRouter.POST("/assignTask", tasks.AssignTask)
+	urlRouter.POST("/addComment", tasks.AddComment)
+	urlRouter.DELETE("/deleteTask", tasks.DeleteTask)
 	err := urlRouter.Run()
 	if err != nil {
 		return
