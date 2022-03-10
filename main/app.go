@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/surajeet310/bugit-go-server/middlewares"
 	"github.com/surajeet310/bugit-go-server/projects"
 	"github.com/surajeet310/bugit-go-server/tasks"
 	"github.com/surajeet310/bugit-go-server/users"
@@ -12,42 +13,51 @@ import (
 
 func main() {
 	urlRouter := gin.New()
-	//users
-	urlRouter.POST("/register", users.RegisterUser)
-	urlRouter.POST("/login", users.LoginUser)
-	urlRouter.GET("/user", users.GetUserFromId)
-	urlRouter.POST("/checkPwd", users.CheckOldPwd)
-	urlRouter.PATCH("/changePwd", users.ChangePwd)
-	urlRouter.PATCH("/changeFname", users.ChangeUserFname)
-	urlRouter.PATCH("/changeLname", users.ChangeUserLname)
-	urlRouter.DELETE("/deleteUser", users.DeleteUser)
-	//workspaces
-	urlRouter.GET("/home", workspaces.ListOfWorkspaces)
-	urlRouter.GET("/home/workspace", workspaces.SingleWorkspace)
-	urlRouter.GET("/workspaceMembers", workspaces.GetWorkspaceMembers)
-	urlRouter.GET("/allWorkspaceMembers", workspaces.GetAllWorkspaceMembers)
-	urlRouter.GET("/requests", workspaces.GetRequests)
-	urlRouter.POST("/addWorkspace", workspaces.AddWorkspace)
-	urlRouter.POST("/makeUserAdmin", workspaces.MakeWorkspaceMemberAdmin)
-	urlRouter.POST("/addWorkspaceMemberReq", workspaces.AddWorkspaceMemberRequest)
-	urlRouter.POST("/addWorkspaceMember", workspaces.AddWorkspaceMember)
-	urlRouter.DELETE("/removeWorkspaceMember", workspaces.RemoveWorkspaceMember)
-	urlRouter.DELETE("/deleteWorkspace", workspaces.DeleteWorkspace)
-	//projects
-	urlRouter.POST("/addProject", projects.AddProject)
-	urlRouter.POST("/makeProjectUserAdmin", projects.MakeProjectMemberAdmin)
-	urlRouter.POST("/addProjectMember", projects.AddProjectMember)
-	urlRouter.GET("/project", projects.SingleProjectList)
-	urlRouter.GET("/projectMembers", projects.GetProjectMembers)
-	urlRouter.GET("/allProjectMembers", projects.GetAllProjectMembers)
-	urlRouter.DELETE("/deleteProject", projects.DeleteProject)
-	urlRouter.DELETE("/removeProjectMember", projects.RemoveProjectMember)
-	//tasks
-	urlRouter.GET("/task", tasks.GetTask)
-	urlRouter.POST("/addTask", tasks.AddTask)
-	urlRouter.POST("/assignTask", tasks.AssignTask)
-	urlRouter.POST("/addComment", tasks.AddComment)
-	urlRouter.DELETE("/deleteTask", tasks.DeleteTask)
+	publicRouter := urlRouter.Group("/open")
+	{
+		publicRouter.POST("/register", users.RegisterUser)
+		publicRouter.POST("/login", users.LoginUser)
+	}
+
+	privateRouter := urlRouter.Group("/auth")
+	privateRouter.Use(middlewares.AuthMiddleware())
+	{
+		//users
+		privateRouter.GET("/user", users.GetUserFromId)
+		privateRouter.POST("/checkPwd", users.CheckOldPwd)
+		privateRouter.PATCH("/changePwd", users.ChangePwd)
+		privateRouter.PATCH("/changeFname", users.ChangeUserFname)
+		privateRouter.PATCH("/changeLname", users.ChangeUserLname)
+		privateRouter.DELETE("/deleteUser", users.DeleteUser)
+		//workspaces
+		privateRouter.GET("/home", workspaces.ListOfWorkspaces)
+		privateRouter.GET("/home/workspace", workspaces.SingleWorkspace)
+		privateRouter.GET("/workspaceMembers", workspaces.GetWorkspaceMembers)
+		privateRouter.GET("/allWorkspaceMembers", workspaces.GetAllWorkspaceMembers)
+		privateRouter.GET("/requests", workspaces.GetRequests)
+		privateRouter.POST("/addWorkspace", workspaces.AddWorkspace)
+		privateRouter.POST("/makeUserAdmin", workspaces.MakeWorkspaceMemberAdmin)
+		privateRouter.POST("/addWorkspaceMemberReq", workspaces.AddWorkspaceMemberRequest)
+		privateRouter.POST("/addWorkspaceMember", workspaces.AddWorkspaceMember)
+		privateRouter.DELETE("/removeWorkspaceMember", workspaces.RemoveWorkspaceMember)
+		privateRouter.DELETE("/deleteWorkspace", workspaces.DeleteWorkspace)
+		//projects
+		privateRouter.POST("/addProject", projects.AddProject)
+		privateRouter.POST("/makeProjectUserAdmin", projects.MakeProjectMemberAdmin)
+		privateRouter.POST("/addProjectMember", projects.AddProjectMember)
+		privateRouter.GET("/project", projects.SingleProjectList)
+		privateRouter.GET("/projectMembers", projects.GetProjectMembers)
+		privateRouter.GET("/allProjectMembers", projects.GetAllProjectMembers)
+		privateRouter.DELETE("/deleteProject", projects.DeleteProject)
+		privateRouter.DELETE("/removeProjectMember", projects.RemoveProjectMember)
+		//tasks
+		privateRouter.GET("/task", tasks.GetTask)
+		privateRouter.POST("/addTask", tasks.AddTask)
+		privateRouter.POST("/assignTask", tasks.AssignTask)
+		privateRouter.POST("/addComment", tasks.AddComment)
+		privateRouter.DELETE("/deleteTask", tasks.DeleteTask)
+	}
+
 	err := urlRouter.Run()
 	if err != nil {
 		return
