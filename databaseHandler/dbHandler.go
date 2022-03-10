@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 
 	_ "github.com/lib/pq"
 )
@@ -18,7 +19,7 @@ const (
 	dbname   = "bugit_test_db"
 )
 
-func OpenDbConnectionLocal() *sql.DB {
+func OpenDbLocal() *sql.DB {
 	if database == nil {
 		dbInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
 		db, err := sql.Open("postgres", dbInfo)
@@ -33,5 +34,22 @@ func OpenDbConnectionLocal() *sql.DB {
 		database = db
 	}
 
+	return database
+}
+
+func OpenDbConnectionLocal() *sql.DB {
+	if database == nil {
+		dbInfo := os.Getenv("DATABASE_URL")
+		db, err := sql.Open("postgres", dbInfo)
+		if err != nil {
+			log.Fatalf("Connection Error %s", err)
+		}
+		err = db.Ping()
+		if err != nil {
+			log.Fatalf("Ping Error %s", err)
+		}
+		log.Println("Connection Established.")
+		database = db
+	}
 	return database
 }

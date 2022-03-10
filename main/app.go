@@ -1,6 +1,10 @@
 package main
 
 import (
+	"fmt"
+	"log"
+	"os"
+
 	"github.com/surajeet310/bugit-go-server/middlewares"
 	"github.com/surajeet310/bugit-go-server/projects"
 	"github.com/surajeet310/bugit-go-server/tasks"
@@ -10,6 +14,14 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 )
+
+func getPort() (string, error) {
+	port := os.Getenv("PORT")
+	if port == "" {
+		return "", fmt.Errorf("$Port not set")
+	}
+	return ":" + port, nil
+}
 
 func main() {
 	urlRouter := gin.New()
@@ -59,7 +71,12 @@ func main() {
 		privateRouter.DELETE("/deleteTask", tasks.DeleteTask)
 	}
 
-	err := urlRouter.Run()
+	port, err := getPort()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	err = urlRouter.Run(port)
 	if err != nil {
 		return
 	}
