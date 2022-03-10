@@ -132,7 +132,7 @@ func GetRequests(c *gin.Context) {
 	var request Request
 	var requests []Request
 	user_id := c.Query("user_id")
-	query := "SELECT * FROM requests WHERE user_id = $1"
+	query := "SELECT * FROM requests WHERE user_id = $1 ORDER BY priority DESC"
 	db := databaseHandler.OpenDbConnectionLocal()
 	reqs, err := db.Query(query, user_id)
 	if err != nil {
