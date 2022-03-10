@@ -69,3 +69,17 @@ func LoginUser(c *gin.Context) {
 		"result":   token,
 	})
 }
+
+func GetUser(c *gin.Context) {
+	user_id, err := ExtractIdFromToken(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"response": "error",
+			"result":   nil,
+		})
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"response": "success",
+		"result":   user_id,
+	})
+}

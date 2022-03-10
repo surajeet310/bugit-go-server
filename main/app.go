@@ -24,6 +24,7 @@ func main() {
 	{
 		//users
 		privateRouter.GET("/user", users.GetUserFromId)
+		privateRouter.GET("/getUserId", users.GetUser)
 		privateRouter.POST("/checkPwd", users.CheckOldPwd)
 		privateRouter.PATCH("/changePwd", users.ChangePwd)
 		privateRouter.PATCH("/changeFname", users.ChangeUserFname)
@@ -42,12 +43,12 @@ func main() {
 		privateRouter.DELETE("/removeWorkspaceMember", workspaces.RemoveWorkspaceMember)
 		privateRouter.DELETE("/deleteWorkspace", workspaces.DeleteWorkspace)
 		//projects
-		privateRouter.POST("/addProject", projects.AddProject)
-		privateRouter.POST("/makeProjectUserAdmin", projects.MakeProjectMemberAdmin)
-		privateRouter.POST("/addProjectMember", projects.AddProjectMember)
 		privateRouter.GET("/project", projects.SingleProjectList)
 		privateRouter.GET("/projectMembers", projects.GetProjectMembers)
 		privateRouter.GET("/allProjectMembers", projects.GetAllProjectMembers)
+		privateRouter.POST("/addProject", projects.AddProject)
+		privateRouter.POST("/makeProjectUserAdmin", projects.MakeProjectMemberAdmin)
+		privateRouter.POST("/addProjectMember", projects.AddProjectMember)
 		privateRouter.DELETE("/deleteProject", projects.DeleteProject)
 		privateRouter.DELETE("/removeProjectMember", projects.RemoveProjectMember)
 		//tasks
