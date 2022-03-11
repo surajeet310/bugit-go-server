@@ -8,7 +8,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
-	"github.com/joho/godotenv"
 	"github.com/pborman/uuid"
 	"github.com/surajeet310/bugit-go-server/databaseHandler"
 	"golang.org/x/crypto/bcrypt"
@@ -19,10 +18,6 @@ func checkPassword(actualPass, givenPass string) error {
 }
 
 func getToken(uid uuid.UUID) (string, error) {
-	err := godotenv.Load("../local.env")
-	if err != nil {
-		return "", err
-	}
 	token_lifespan, err := strconv.Atoi(os.Getenv("TOKEN_HOUR_LIFESPAN"))
 	if err != nil {
 		return "", err

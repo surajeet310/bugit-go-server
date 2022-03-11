@@ -7,17 +7,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
-	"github.com/joho/godotenv"
 	"github.com/pborman/uuid"
 )
 
 func TokenValid(c *gin.Context) error {
-	err := godotenv.Load("../local.env")
-	if err != nil {
-		return err
-	}
 	tokenString := ExtractToken(c)
-	_, err = jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+	_, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
@@ -38,10 +33,6 @@ func ExtractToken(c *gin.Context) string {
 }
 
 func ExtractIdFromToken(c *gin.Context) (uuid.UUID, error) {
-	err := godotenv.Load("../local.env")
-	if err != nil {
-		return nil, err
-	}
 	tokenString := ExtractToken(c)
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
