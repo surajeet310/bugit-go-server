@@ -1,1 +1,1 @@
-web: main/go run app.go
+web: bin/main
