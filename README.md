@@ -29,3 +29,9 @@ There exist 9 relational tables as listed below :
 |`/login`|`POST`|`{"email":"","password":""}`|`{"response":"","result":token}`|
 
 #### Auth endpoints (Base url/auth)
+***Workspace Endpoints***</br>
+***( GET Requests )***
+| Endpoint | Query Params | Response |
+|:--------:|:--------------------:|:--------:|
+|`/home`|`user_id`|`{"response":"","result":[ {"w_id":"","name":"","project_count":"","member_count":""},{},..]}`|
+|`/home/workspace`|`workspace_id`|`{"response":"","result":{ {"w_id":"","name":"","descp":"","project_count":"","member_count":"","created_at":""}, [ {"p_id":"","name":"","task_count":"","member_count":""},{},.. ] }}`|
