@@ -22,11 +22,10 @@ There exist 9 relational tables as listed below :
 ### API endpoints
 
 #### Non-Auth endpoints (Base url/open)
-* ``` /register ``` : ```POST``` request </br>
-	Request Body :
-```
-"fname" : "",
-"lname" : "",
-"email" : "",
-"password" : ""
-```
+
+| Endpoint | Method | Request | Response |
+|:--------:|:------:|:-------:|:--------:|
+|`/register`|`POST`|`{"fname":"","lname":"","email":"","password":""}`|`{"response":"","result":null}`|
+|`/login`|`POST`|`{"email":"","password":""}`|`{"response":"","result":token}`|
+
+### Auth endpoints (Base url/auth)
