@@ -28,4 +28,4 @@ There exist 9 relational tables as listed below :
 |`/register`|`POST`|`{"fname":"","lname":"","email":"","password":""}`|`{"response":"","result":null}`|
 |`/login`|`POST`|`{"email":"","password":""}`|`{"response":"","result":token}`|
 
-### Auth endpoints (Base url/auth)
+#### Auth endpoints (Base url/auth)
