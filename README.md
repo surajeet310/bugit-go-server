@@ -85,7 +85,7 @@ The responses and requests are in `JSON` format . Unique identifiers, in all the
 	
 	{"user_id" : ,"is_admin" : ,"is_assigned" : ,"user_name" : ""} - projectMembers
 	
-	{"user_id" : ,"is_admin" : ,"is_assigned" false: ,"user_name" : ""} - allProjectMembers
+	{"user_id" : ,"is_admin" : ,"is_assigned" : false ,"user_name" : ""} - allProjectMembers
 	```
 	
 	##### Request Data Types
