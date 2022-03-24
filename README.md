@@ -122,7 +122,7 @@ The responses and requests are in `JSON` format . Unique identifiers, in all the
 	
 	{"t_id" : "", "user_id" : "", "comment" : "", "created_at" : "" } - addCommentStruct
 	
-	{"t_id" : "", "user_id" : "" } - assignTaskComment
+	{"t_id" : "", "user_id" : "" } - assignTaskStruct
 	```
 	
 	| Endpoint | Method | Request Body/Query Params | Response |
@@ -130,7 +130,7 @@ The responses and requests are in `JSON` format . Unique identifiers, in all the
 	|`/task`|`GET`|`task_id = `|`{"response" : "success","result" : { task, [ taskComment ] } }`|
 	|`/addTask`|`POST`|`addTaskStruct`|`{"response" : "success","result" : null }`|
 	|`/addComent`|`POST`|`addCommentStruct`|`{"response" : "success","result" : null }`|
-	|`/assignTask`|`POST`|`assignTaskComment`|`{"response" : "success","result" : null }`|
+	|`/assignTask`|`POST`|`assignTaskStruct`|`{"response" : "success","result" : null }`|
 	|`/deleteTask`|`DELETE`|`task_id = `|`{"response" : "success","result" : null }`|
 
 4. ***Users***
