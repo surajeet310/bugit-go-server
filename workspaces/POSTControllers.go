@@ -164,7 +164,10 @@ func AddWorkspaceMemberRequest(c *gin.Context) {
 		})
 		return
 	}
-	handleError(c, "exists")
+	c.JSON(http.StatusOK, gin.H{
+		"response": "exists",
+		"result":   nil,
+	})
 }
 
 func AddWorkspaceMember(c *gin.Context) {
