@@ -52,7 +52,10 @@ func RegisterUser(c *gin.Context) {
 			"result":   nil,
 		})
 	} else {
-		handleRequestError(c)
+		c.JSON(http.StatusCreated, gin.H{
+			"response": "exists",
+			"result":   nil,
+		})
 		return
 	}
 }
