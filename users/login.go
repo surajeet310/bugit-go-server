@@ -44,14 +44,17 @@ func LoginUser(c *gin.Context) {
 	query := "SELECT pwd,user_id FROM users WHERE email = $1"
 	err := db.QueryRow(query, loginUser.Email).Scan(&pass, &uid)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"response": "Doesn't exist",
+		c.JSON(http.StatusOK, gin.H{
+			"response": "exists!",
 			"result":   nil,
 		})
 		return
 	}
 	if passVerify := checkPassword(pass, loginUser.Password); passVerify != nil && passVerify == bcrypt.ErrMismatchedHashAndPassword {
-		handleRequestError(c)
+		c.JSON(http.StatusOK, gin.H{
+			"response": "wrong",
+			"result":   nil,
+		})
 		return
 	}
 	token, err := getToken(uid)
