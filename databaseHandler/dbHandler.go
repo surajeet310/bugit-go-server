@@ -12,6 +12,7 @@ import (
 
 var database *sql.DB
 var lock sync.Mutex
+var once sync.Once
 
 const (
 	host     = "127.0.0.1"
@@ -43,17 +44,19 @@ func OpenDbConnectionLocal() *sql.DB {
 	lock.Lock()
 	defer lock.Unlock()
 	if database == nil {
-		dbInfo := os.Getenv("DATABASE_URL")
-		db, err := sql.Open("postgres", dbInfo)
-		if err != nil {
-			log.Fatalf("Connection Error %s", err)
-		}
-		err = db.Ping()
-		if err != nil {
-			log.Fatalf("Ping Error %s", err)
-		}
-		log.Println("Connection Established.")
-		database = db
+		once.Do(func() {
+			dbInfo := os.Getenv("DATABASE_URL")
+			db, err := sql.Open("postgres", dbInfo)
+			if err != nil {
+				log.Fatalf("Connection Error %s", err)
+			}
+			err = db.Ping()
+			if err != nil {
+				log.Fatalf("Ping Error %s", err)
+			}
+			log.Println("Connection Established.")
+			database = db
+		})
 	}
 	return database
 }
