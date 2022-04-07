@@ -28,7 +28,6 @@ func AddWorkspace(c *gin.Context) {
 		return
 	}
 	db := databaseHandler.OpenDbConnectionLocal()
-	defer db.Close()
 	query := "INSERT INTO workspaces (w_id,name,descp,project_count,member_count,createdat) VALUES ($1,$2,$3,$4,$5,$6)"
 	workspace.W_id = generateUUID()
 	workspace.MemberCount = 1
@@ -36,6 +35,7 @@ func AddWorkspace(c *gin.Context) {
 	_, err := db.Query(query, workspace.W_id, workspace.Name, workspace.Descp, workspace.ProjectCount, workspace.MemberCount, workspace.CreatedAt)
 	if err != nil {
 		handleError(c, "error")
+		db.Close()
 		return
 	}
 
@@ -47,12 +47,14 @@ func AddWorkspace(c *gin.Context) {
 	_, err = db.Query(query, workspaceMember.W_id, workspaceMember.UserId, workspaceMember.IsAdmin)
 	if err != nil {
 		handleError(c, "error")
+		db.Close()
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"response": "success",
 		"result":   nil,
 	})
+	db.Close()
 }
 
 func MakeWorkspaceMemberAdmin(c *gin.Context) {

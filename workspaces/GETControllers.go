@@ -15,10 +15,10 @@ func ListOfWorkspaces(c *gin.Context) {
 	var home []HomeWorkspaces
 	user_id := c.Query("user_id")
 	db := databaseHandler.OpenDbConnectionLocal()
-	defer db.Close()
 	workspaceIds, err := db.Query("SELECT w_id FROM workspace_members WHERE user_id = $1", user_id)
 	if err != nil {
 		handleError(c, "error")
+		db.Close()
 		return
 	}
 	for workspaceIds.Next() {
@@ -27,6 +27,7 @@ func ListOfWorkspaces(c *gin.Context) {
 		err := db.QueryRow(query, workspaceId).Scan(&workspace.W_id, &workspace.Name, &workspace.ProjectCount, &workspace.MemberCount)
 		if err != nil {
 			handleError(c, "error")
+			db.Close()
 			return
 		}
 		home = append(home, workspace)
@@ -36,6 +37,7 @@ func ListOfWorkspaces(c *gin.Context) {
 		"response": "success",
 		"result":   home,
 	})
+	db.Close()
 }
 
 func SingleWorkspace(c *gin.Context) {
