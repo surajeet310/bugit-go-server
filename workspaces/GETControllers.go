@@ -18,7 +18,6 @@ func ListOfWorkspaces(c *gin.Context) {
 	workspaceIds, err := db.Query("SELECT w_id FROM workspace_members WHERE user_id = $1", user_id)
 	if err != nil {
 		handleError(c, "error")
-		db.Close()
 		return
 	}
 	for workspaceIds.Next() {
@@ -27,7 +26,6 @@ func ListOfWorkspaces(c *gin.Context) {
 		err := db.QueryRow(query, workspaceId).Scan(&workspace.W_id, &workspace.Name, &workspace.ProjectCount, &workspace.MemberCount)
 		if err != nil {
 			handleError(c, "error")
-			db.Close()
 			return
 		}
 		home = append(home, workspace)
@@ -37,7 +35,6 @@ func ListOfWorkspaces(c *gin.Context) {
 		"response": "success",
 		"result":   home,
 	})
-	db.Close()
 }
 
 func SingleWorkspace(c *gin.Context) {
@@ -47,7 +44,6 @@ func SingleWorkspace(c *gin.Context) {
 
 	var workspace_id = c.Query("workspace_id")
 	db := databaseHandler.OpenDbConnectionLocal()
-	defer db.Close()
 	err := db.QueryRow("SELECT * FROM workspaces WHERE w_id = $1", workspace_id).Scan(&workspace.W_id, &workspace.Name, &workspace.Descp, &workspace.ProjectCount, &workspace.MemberCount, &workspace.CreatedAt)
 	if err != nil {
 		handleError(c, "error")
@@ -73,7 +69,6 @@ func SingleWorkspace(c *gin.Context) {
 
 func DeleteWorkspace(c *gin.Context) {
 	db := databaseHandler.OpenDbConnectionLocal()
-	defer db.Close()
 	workspace_id := c.Query("workspace_id")
 	query := "DELETE FROM workspaces WHERE w_id = $1"
 	_, err := db.Query(query, workspace_id)
@@ -93,7 +88,6 @@ func RemoveWorkspaceMember(c *gin.Context) {
 	user_id := c.Query("user_id")
 	w_id := c.Query("workspace_id")
 	db := databaseHandler.OpenDbConnectionLocal()
-	defer db.Close()
 	query := "DELETE FROM workspace_members WHERE user_id = $1 AND w_id = $2"
 	_, err := db.Query(query, user_id, w_id)
 	if err != nil {
@@ -139,7 +133,6 @@ func GetRequests(c *gin.Context) {
 	user_id := c.Query("user_id")
 	query := "SELECT * FROM requests WHERE user_id = $1 ORDER BY priority DESC"
 	db := databaseHandler.OpenDbConnectionLocal()
-	defer db.Close()
 	reqs, err := db.Query(query, user_id)
 	if err != nil {
 		handleError(c, "error")
@@ -163,7 +156,6 @@ func GetWorkspaceMembers(c *gin.Context) {
 	w_id := c.Query("workspace_id")
 	p_id := c.Query("project_id")
 	db := databaseHandler.OpenDbConnectionLocal()
-	defer db.Close()
 	query := "SELECT user_id,is_admin FROM workspace_members WHERE w_id = $1"
 	members, err := db.Query(query, w_id)
 	if err != nil {
@@ -198,7 +190,6 @@ func GetAllWorkspaceMembers(c *gin.Context) {
 	var workspaceMembers []GetWorkspaceMemberStruct
 	w_id := c.Query("workspace_id")
 	db := databaseHandler.OpenDbConnectionLocal()
-	defer db.Close()
 	query := "SELECT user_id,is_admin FROM workspace_members WHERE w_id = $1"
 	members, err := db.Query(query, w_id)
 	if err != nil {
