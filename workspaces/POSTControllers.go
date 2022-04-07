@@ -2,7 +2,10 @@ package workspaces
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
+	"net/smtp"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/pborman/uuid"
@@ -130,7 +133,15 @@ func AddWorkspaceMemberRequest(c *gin.Context) {
 	query := "SELECT user_id FROM users WHERE email = $1"
 	err := db.QueryRow(query, workspaceMemberReq.Email).Scan(&user_id)
 	if err != nil {
-		handleError(c, "error")
+		emailErr := sendRequestEmail(db, workspaceMemberReq.Email, workspaceMemberReq.RequesteeId)
+		if emailErr != nil {
+			handleError(c, "error")
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"response": "success",
+			"result":   nil,
+		})
 		return
 	}
 	count, err := checkExistingMember(c, db, workspaceMemberReq.W_id, user_id)
@@ -213,4 +224,26 @@ func AddWorkspaceMember(c *gin.Context) {
 		"response": "success",
 		"result":   nil,
 	})
+}
+
+func sendRequestEmail(db *sql.DB, email string, requesteeId uuid.UUID) error {
+	var fname, lname, fullName string
+	err := db.QueryRow("SELECT fname,lname FROM users WHERE user_id = $1", requesteeId).Scan(&fname, &lname)
+	if err != nil {
+		return err
+	}
+	fullName = fname + " " + lname
+	reciever := []string{email}
+	from := os.Getenv("emailId")
+	password := os.Getenv("emailPass")
+	emailHost := os.Getenv("emailHost")
+	emailPort := "587"
+	message := fmt.Sprintf("%s invited you to join the Bugit App. You can download the app from the Google Play Store", fullName)
+	messageBody := []byte(message)
+	auth := smtp.PlainAuth("", from, password, emailHost)
+	err = smtp.SendMail(emailHost+":"+emailPort, auth, from, reciever, messageBody)
+	if err != nil {
+		return err
+	}
+	return nil
 }
