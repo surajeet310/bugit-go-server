@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/surajeet310/bugit-go-server/databaseHandler"
 	"github.com/surajeet310/bugit-go-server/middlewares"
 	"github.com/surajeet310/bugit-go-server/projects"
 	"github.com/surajeet310/bugit-go-server/tasks"
@@ -27,6 +28,7 @@ func getPort() (string, error) {
 func main() {
 	gin.SetMode(gin.ReleaseMode)
 	urlRouter := gin.New()
+	databaseHandler.OpenDbConnection()
 	publicRouter := urlRouter.Group("/open")
 	{
 		publicRouter.POST("/register", users.RegisterUser)
