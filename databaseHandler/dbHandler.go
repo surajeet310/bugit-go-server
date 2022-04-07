@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sync"
 
 	_ "github.com/lib/pq"
 )
 
 var database *sql.DB
+var lock sync.Mutex
 
 const (
 	host     = "127.0.0.1"
@@ -38,6 +40,8 @@ func OpenDbLocal() *sql.DB {
 }
 
 func OpenDbConnectionLocal() *sql.DB {
+	lock.Lock()
+	defer lock.Unlock()
 	if database == nil {
 		dbInfo := os.Getenv("DATABASE_URL")
 		db, err := sql.Open("postgres", dbInfo)
