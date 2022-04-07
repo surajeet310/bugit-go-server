@@ -28,6 +28,7 @@ func AddWorkspace(c *gin.Context) {
 		return
 	}
 	db := databaseHandler.OpenDbConnectionLocal()
+	defer db.Close()
 	query := "INSERT INTO workspaces (w_id,name,descp,project_count,member_count,createdat) VALUES ($1,$2,$3,$4,$5,$6)"
 	workspace.W_id = generateUUID()
 	workspace.MemberCount = 1
@@ -61,6 +62,7 @@ func MakeWorkspaceMemberAdmin(c *gin.Context) {
 		return
 	}
 	db := databaseHandler.OpenDbConnectionLocal()
+	defer db.Close()
 	workspaceMember.IsAdmin = true
 	query := "UPDATE workspace_members SET is_admin = $1 WHERE user_id = $2 AND w_id = $3"
 	_, err := db.Query(query, workspaceMember.IsAdmin, workspaceMember.UserId, workspaceMember.W_id)
@@ -127,6 +129,7 @@ func AddWorkspaceMemberRequest(c *gin.Context) {
 		return
 	}
 	db := databaseHandler.OpenDbConnectionLocal()
+	defer db.Close()
 	query := "SELECT user_id FROM users WHERE email = $1"
 	err := db.QueryRow(query, workspaceMemberReq.Email).Scan(&user_id)
 	if err != nil {
@@ -179,6 +182,7 @@ func AddWorkspaceMember(c *gin.Context) {
 		return
 	}
 	db := databaseHandler.OpenDbConnectionLocal()
+	defer db.Close()
 	err := db.QueryRow("SELECT user_id,w_id FROM requests WHERE req_id = $1", req_id.RequestId).Scan(&user_id, &w_id)
 	if err != nil {
 		handleError(c, "error")
