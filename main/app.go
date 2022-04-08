@@ -28,7 +28,8 @@ func getPort() (string, error) {
 func main() {
 	gin.SetMode(gin.ReleaseMode)
 	urlRouter := gin.New()
-	databaseHandler.OpenDbConnection()
+	db := databaseHandler.OpenDbConnection()
+	defer db.Close()
 	publicRouter := urlRouter.Group("/open")
 	{
 		publicRouter.POST("/register", users.RegisterUser)

@@ -40,7 +40,7 @@ func OpenDbLocal() *sql.DB {
 	return database
 }
 
-func OpenDbConnection() {
+func OpenDbConnection() *sql.DB {
 	lock.Lock()
 	defer lock.Unlock()
 	if database == nil {
@@ -58,6 +58,7 @@ func OpenDbConnection() {
 			database = db
 		})
 	}
+	return database
 }
 
 func OpenDbConnectionLocal() *sql.DB {
