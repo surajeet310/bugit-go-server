@@ -53,6 +53,7 @@ func main() {
 		privateRouter.GET("/workspaceMembers", workspaces.GetWorkspaceMembers)
 		privateRouter.GET("/allWorkspaceMembers", workspaces.GetAllWorkspaceMembers)
 		privateRouter.GET("/requests", workspaces.GetRequests)
+		privateRouter.POST("/ignoreRequest", workspaces.IgnoreWorkspaceRequest)
 		privateRouter.POST("/addWorkspace", workspaces.AddWorkspace)
 		privateRouter.POST("/makeUserAdmin", workspaces.MakeWorkspaceMemberAdmin)
 		privateRouter.POST("/addWorkspaceMemberReq", workspaces.AddWorkspaceMemberRequest)
