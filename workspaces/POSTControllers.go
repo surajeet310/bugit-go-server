@@ -247,3 +247,33 @@ func sendRequestEmail(db *sql.DB, email string, requesteeId uuid.UUID) error {
 	}
 	return nil
 }
+
+func IgnoreWorkspaceRequest(c *gin.Context) {
+	var w_id, user_id uuid.UUID
+	var req_id RequestIdStruct
+	if err := c.ShouldBindJSON(&req_id); err != nil {
+		handleError(c, "error")
+		return
+	}
+	db := databaseHandler.OpenDbConnectionLocal()
+	err := db.QueryRow("SELECT user_id,w_id FROM requests WHERE req_id = $1", req_id.RequestId).Scan(&user_id, &w_id)
+	if err != nil {
+		handleError(c, "error")
+		return
+	}
+
+	_, err = db.Query("DELETE FROM requests WHERE req_id = $1", req_id.RequestId)
+	if err != nil {
+		handleError(c, "error")
+		return
+	}
+	err = changeAlertColumn(db, "sub", user_id)
+	if err != nil {
+		handleError(c, "error")
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"response": "success",
+		"result":   nil,
+	})
+}
