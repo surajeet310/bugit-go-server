@@ -14,9 +14,15 @@ func SingleProjectList(c *gin.Context) {
 	var task tasks.HomeTasks
 	var tasks []tasks.HomeTasks
 	p_id := c.Query("project_id")
+	user_id := c.Query("user_id")
 	db := databaseHandler.OpenDbConnectionLocal()
 	query := "SELECT p_id,name,descp,task_count,member_count,createdat,deadline,tech FROM projects WHERE p_id = $1"
 	err := db.QueryRow(query, p_id).Scan(&project.P_id, &project.Name, &project.Descp, &project.TaskCount, &project.MemberCount, &project.CreatedAt, &project.Deadline, &project.Tech)
+	if err != nil {
+		handleBadReqError(c)
+		return
+	}
+	err = db.QueryRow("SELECT is_admin FROM project_members WHERE p_id = $1 AND user_id = $2", p_id, user_id).Scan(&project.IsAdmin)
 	if err != nil {
 		handleBadReqError(c)
 		return

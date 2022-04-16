@@ -36,6 +36,7 @@ type SingleProject struct {
 	Descp       string    `json:"descp"`
 	TaskCount   int       `json:"task_count"`
 	MemberCount int       `json:"member_count"`
+	IsAdmin     bool      `json:"is_admin"`
 	CreatedAt   string    `json:"created_at"`
 	Deadline    string    `json:"deadline"`
 	Tech        string    `json:"tech"`
