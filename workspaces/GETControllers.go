@@ -43,8 +43,14 @@ func SingleWorkspace(c *gin.Context) {
 	var projects []projects.HomeProjects
 
 	var workspace_id = c.Query("workspace_id")
+	var user_id = c.Query("user_id")
 	db := databaseHandler.OpenDbConnectionLocal()
 	err := db.QueryRow("SELECT * FROM workspaces WHERE w_id = $1", workspace_id).Scan(&workspace.W_id, &workspace.Name, &workspace.Descp, &workspace.ProjectCount, &workspace.MemberCount, &workspace.CreatedAt)
+	if err != nil {
+		handleError(c, "error")
+		return
+	}
+	err = db.QueryRow("SELECT is_admin FROM workspace_members WHERE w_id = $1 AND user_id = $2", workspace_id, user_id).Scan(&workspace.IsAdmin)
 	if err != nil {
 		handleError(c, "error")
 		return

@@ -8,6 +8,7 @@ type Workspace struct {
 	W_id         uuid.UUID `json:"w_id"`
 	Name         string    `json:"name"`
 	Descp        string    `json:"descp"`
+	IsAdmin      string    `json:"is_admin"`
 	ProjectCount int       `json:"project_count"`
 	MemberCount  int       `json:"member_count"`
 	CreatedAt    string    `json:"created_at"`
