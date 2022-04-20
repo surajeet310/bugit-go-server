@@ -9,9 +9,10 @@ import (
 )
 
 func GetTask(c *gin.Context) {
-	var task Task
+	var task GetTaskStruct
 	var comment TaskComment
 	var comments []TaskComment
+	var fname, lname string
 	t_id := c.Query("task_id")
 	db := databaseHandler.OpenDbConnectionLocal()
 	query := "SELECT * FROM tasks WHERE t_id = $1"
@@ -25,6 +26,10 @@ func GetTask(c *gin.Context) {
 	}
 	query = "SELECT assignedto FROM task_members WHERE t_id = $1"
 	_ = db.QueryRow(query, t_id).Scan(&task.AssignedTo)
+	_ = db.QueryRow("SELECT fname,lname FROM users WHERE user_id = $1", task.Assignee).Scan(&fname, &lname)
+	task.AssigneeName = fname + " " + lname
+	_ = db.QueryRow("SELECT fname,lname FROM users WHERE user_id = $1", task.AssignedTo).Scan(&fname, &lname)
+	task.AssignedToName = fname + " " + lname
 	query = "SELECT * FROM task_comments WHERE t_id = $1"
 	commentList, err := db.Query(query, t_id)
 	if err != nil {
