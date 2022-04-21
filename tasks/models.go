@@ -42,6 +42,7 @@ type TaskComment struct {
 	Tc_id     uuid.UUID `json:"tc_id"`
 	T_id      uuid.UUID `json:"t_id"`
 	User_id   uuid.UUID `json:"user_id"`
+	UserName  string    `json:"user_name"`
 	Comment   string    `json:"comment"`
 	CreatedAt string    `json:"created_at"`
 }

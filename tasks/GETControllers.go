@@ -38,6 +38,8 @@ func GetTask(c *gin.Context) {
 	}
 	for commentList.Next() {
 		commentList.Scan(&comment.Tc_id, &comment.T_id, &comment.Comment, &comment.User_id, &comment.CreatedAt)
+		_ = db.QueryRow("SELECT fname,lname FROM users WHERE user_id = $1", comment.User_id).Scan(&fname, &lname)
+		comment.UserName = fname + " " + lname
 		comments = append(comments, comment)
 	}
 	c.JSON(http.StatusOK, gin.H{
