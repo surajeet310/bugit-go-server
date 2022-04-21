@@ -25,7 +25,10 @@ func GetTask(c *gin.Context) {
 		taskList.Scan(&task.T_id, &task.P_id, &task.Name, &task.Descp, &task.Assignee, &task.CreatedAt, &task.Deadline, &task.Tech)
 	}
 	query = "SELECT assignedto FROM task_members WHERE t_id = $1"
-	_ = db.QueryRow(query, t_id).Scan(&task.AssignedTo)
+	err = db.QueryRow(query, t_id).Scan(&task.AssignedTo)
+	if err != nil {
+		task.AssignedTo = uuid.NIL
+	}
 	_ = db.QueryRow("SELECT fname,lname FROM users WHERE user_id = $1", task.Assignee).Scan(&fname, &lname)
 	task.AssigneeName = fname + " " + lname
 	_ = db.QueryRow("SELECT fname,lname FROM users WHERE user_id = $1", task.AssignedTo).Scan(&fname, &lname)
