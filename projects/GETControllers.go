@@ -69,13 +69,13 @@ func GetProjectMembers(c *gin.Context) {
 		}
 		err = db.QueryRow("SELECT assignedto FROM task_members WHERE t_id = $1", t_id).Scan(&assignedTo)
 		if err != nil {
-			handleBadReqError(c)
-			return
-		}
-		if assignedTo.String() == projectMember.User_id.String() {
-			projectMember.IsAssigned = true
-		} else {
 			projectMember.IsAssigned = false
+		} else {
+			if assignedTo.String() == projectMember.User_id.String() {
+				projectMember.IsAssigned = true
+			} else {
+				projectMember.IsAssigned = false
+			}
 		}
 		projectMember.UserName = fname + " " + lname
 		projectMembers = append(projectMembers, projectMember)
