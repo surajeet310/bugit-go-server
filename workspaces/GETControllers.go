@@ -145,7 +145,7 @@ func GetRequests(c *gin.Context) {
 		return
 	}
 	for reqs.Next() {
-		reqs.Scan(&request.W_id, &request.UserId, &request.Priority, &request.Req_id, &request.Requestee)
+		reqs.Scan(&request.Req_id, &request.W_id, &request.UserId, &request.Priority, &request.Requestee)
 		requests = append(requests, request)
 	}
 	c.JSON(http.StatusOK, gin.H{
